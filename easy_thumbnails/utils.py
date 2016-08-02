@@ -5,7 +5,7 @@ from django.utils import six
 
 from django.utils.functional import LazyObject
 from django.utils import timezone
-
+from django.utils.module_loading import import_string
 
 try:
     from PIL import Image
@@ -72,18 +72,10 @@ def is_storage_local(storage):
 
 def get_storage_hash(storage):
     """
-    Return a hex string hash for a storage object (or string containing
-    'full.path.ClassName' referring to a storage object).
+    Return a hex string hash for a storage object
     """
-    # If storage is wrapped in a lazy object we need to get the real thing.
-    if isinstance(storage, LazyObject):
-        if storage._wrapped is None:
-            storage._setup()
-        storage = storage._wrapped
-    if not isinstance(storage, six.string_types):
-        storage_cls = storage.__class__
-        storage = '%s.%s' % (storage_cls.__module__, storage_cls.__name__)
-    return hashlib.md5(storage.encode('utf8')).hexdigest()
+    func = import_string(settings.THUMBNAIL_STORAGE_HASHER)
+    return func(storage)
 
 
 def is_transparent(image):

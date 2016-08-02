@@ -1,8 +1,10 @@
+import hashlib
+
 from django.core.files.storage import FileSystemStorage, get_storage_class
+from django.utils import six
 from django.utils.functional import LazyObject
 
 from easy_thumbnails.conf import settings
-
 
 class ThumbnailFileSystemStorage(FileSystemStorage):
     """
@@ -25,6 +27,22 @@ class ThumbnailDefaultStorage(LazyObject):
     def _setup(self):
         self._wrapped = get_storage_class(
             settings.THUMBNAIL_DEFAULT_STORAGE)()
+
+
+def default_storage_hasher(storage):
+    """
+    Return a hex string hash for a storage object (or string containing
+    'full.path.ClassName' referring to a storage object).
+    """
+    # If storage is wrapped in a lazy object we need to get the real thing.
+    if isinstance(storage, LazyObject):
+        if storage._wrapped is None:
+            storage._setup()
+        storage = storage._wrapped
+    if not isinstance(storage, six.string_types):
+        storage_cls = storage.__class__
+        storage = '%s.%s' % (storage_cls.__module__, storage_cls.__name__)
+    return hashlib.md5(storage.encode('utf8')).hexdigest()
 
 
 thumbnail_default_storage = ThumbnailDefaultStorage()

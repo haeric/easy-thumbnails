@@ -102,6 +102,11 @@ class Settings(AppSettings):
     """
     The default Django storage for *saving* generated thumbnails.
     """
+    THUMBNAIL_STORAGE_HASHER = (
+        'easy_thumbnails.storage.default_storage_hasher')
+    """
+    The storage hash function to use when populating storage_hash.
+    """
     THUMBNAIL_MEDIA_ROOT = ''
     """
     Used by easy-thumbnail's default storage to locate where thumbnails are
