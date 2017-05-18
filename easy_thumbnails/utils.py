@@ -135,7 +135,7 @@ def get_modified_time(storage, name):
     datetime.
     """
     try:
-        modified_time = storage.modified_time(name)
+        modified_time = storage.get_modified_time(name)
     except OSError:
         return 0
     except NotImplementedError:
